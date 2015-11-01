@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package protobuf;
+
+message Request {
+    string Method = 1;
+    string Payload = 2;
+}
+
+message Response {
+    string Method = 1;
+    int64 PayloadLength = 2;
+}
