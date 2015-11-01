@@ -18,8 +18,6 @@ func StartGrpcClient(address string, clients int, requestsPerClient int, message
         log.Fatal(err)
     }
 
-    defer connection.Close()
-
     client := pb.NewResponderClient(connection)
     request := &pb.Request{Method: "TEST", Payload: strings.Repeat("a", messageSize)}
 
