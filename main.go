@@ -17,7 +17,6 @@ var (
     serverType string
     clients int
     requestsPerClient int
-    repeats int
     messageSize int
 )
 
@@ -27,7 +26,6 @@ func init() {
     flag.StringVar(&clientType, "clientType", "http-json", "Client type (grpc, http-json, http-proto, nanomsg-json, nanomsg-proto, zeromq-json, zeromq-proto)")
     flag.IntVar(&clients, "clients", 10, "Number of clients (type has to be client)")
     flag.IntVar(&requestsPerClient, "rpc", 1000, "Number of sequential requests per client (type has ot be client)")
-    flag.IntVar(&repeats, "repeats", 10, "Number of test repeats (type has to be client)")
     flag.IntVar(&messageSize, "size", 1024, "Message size in bytes (type has to be client)")
 }
 
@@ -45,25 +43,21 @@ func startClient() {
         default: log.Fatal("Unknown client type")
     }
 
-    for round := 0; round < repeats; round++ {
-        var timer = metrics.NewTimer()
-        var wg sync.WaitGroup
+    var timer = metrics.NewTimer()
+    var wg sync.WaitGroup
 
-        metrics.Register("Requests", timer)
+    metrics.Register("Requests", timer)
 
-        wg.Add(clients)
+    wg.Add(clients)
 
-        var clientRoutine func(*sync.WaitGroup) = testFunc("127.0.0.1:8000", clients, requestsPerClient, messageSize, timer)
+    var clientRoutine func(*sync.WaitGroup) = testFunc("127.0.0.1:8000", clients, requestsPerClient, messageSize, timer)
 
-        for client := 0; client < clients; client++ {
-            go clientRoutine(&wg)
-        }
-
-        wg.Wait()
-        metrics.WriteOnce(metrics.DefaultRegistry, os.Stdout)
-
-        metrics.Unregister("Requests")
+    for client := 0; client < clients; client++ {
+        go clientRoutine(&wg)
     }
+
+    wg.Wait()
+    metrics.WriteOnce(metrics.DefaultRegistry, os.Stdout)
 }
 
 func startServer() {
