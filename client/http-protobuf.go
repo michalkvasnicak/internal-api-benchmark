@@ -11,7 +11,7 @@ import (
     "strings"
 )
 
-func StartHttpProtobufTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(wg *sync.WaitGroup) {
+func StartHttpProtobufTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(wg *sync.WaitGroup) {
     return func(wg *sync.WaitGroup) {
         var err error
         var data []byte
@@ -28,6 +28,7 @@ func StartHttpProtobufTest(address string, clients int, requestsPerClient int, m
         }
 
         dataReader := bytes.NewReader(data)
+        *requestSize = len(data)
 
         for i := 0; i < requestsPerClient; i++ {
             timer.Time(func() {

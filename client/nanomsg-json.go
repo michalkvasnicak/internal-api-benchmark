@@ -12,7 +12,7 @@ import (
     "strings"
 )
 
-func StartNanomsgJsonTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(wg *sync.WaitGroup) {
+func StartNanomsgJsonTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(wg *sync.WaitGroup) {
     return func(wg *sync.WaitGroup) {
         var socket mangos.Socket
         var err error
@@ -31,6 +31,7 @@ func StartNanomsgJsonTest(address string, clients int, requestsPerClient int, me
         }
 
         request, _ := json.Marshal(Request{ Method: "TEST", Payload: strings.Repeat("a", messageSize) })
+        *requestSize = len(request)
 
         for i := 0; i < requestsPerClient; i++ {
             timer.Time(func() {

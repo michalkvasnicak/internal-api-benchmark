@@ -12,7 +12,7 @@ import (
     "strings"
 )
 
-func StartNanomsgProtobufTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(wg *sync.WaitGroup) {
+func StartNanomsgProtobufTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(wg *sync.WaitGroup) {
     return func(wg *sync.WaitGroup) {
         var socket mangos.Socket
         var err error
@@ -39,6 +39,8 @@ func StartNanomsgProtobufTest(address string, clients int, requestsPerClient int
         if data, err = proto.Marshal(request); err != nil {
             log.Fatal(err)
         }
+
+        *requestSize = len(data)
 
         for i := 0; i < requestsPerClient; i++ {
             timer.Time(func() {

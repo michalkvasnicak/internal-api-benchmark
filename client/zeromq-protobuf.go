@@ -10,7 +10,7 @@ import (
     "strings"
 )
 
-func StartZeromqProtobufTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(wg *sync.WaitGroup) {
+func StartZeromqProtobufTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(wg *sync.WaitGroup) {
     return func(wg *sync.WaitGroup) {
         var socket *zmq.Socket
         var err error
@@ -33,6 +33,8 @@ func StartZeromqProtobufTest(address string, clients int, requestsPerClient int,
         }); err != nil {
             log.Fatal(err)
         }
+
+        *requestSize = len(request)
 
         for i := 0; i < requestsPerClient; i++ {
             timer.Time(func() {

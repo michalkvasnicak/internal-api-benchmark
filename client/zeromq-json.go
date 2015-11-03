@@ -9,7 +9,7 @@ import (
     . "github.com/michalkvasnicak/internal-api-benchmark/json"
 )
 
-func StartZeromqJsonTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(awg *sync.WaitGroup) {
+func StartZeromqJsonTest(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(awg *sync.WaitGroup) {
     return func(wg *sync.WaitGroup) {
         socket, _ := zmq.NewSocket(zmq.REQ)
 
@@ -19,6 +19,7 @@ func StartZeromqJsonTest(address string, clients int, requestsPerClient int, mes
         socket.Connect("tcp://" + address)
 
         request, _ := json.Marshal(Request{ Method: "TEST", Payload: strings.Repeat("a", messageSize) })
+        *requestSize = len(request)
 
         for i := 0; i < requestsPerClient; i++ {
             timer.Time(func() {

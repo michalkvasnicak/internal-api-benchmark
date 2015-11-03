@@ -32,7 +32,8 @@ func init() {
 }
 
 func startClient() {
-    var testFunc func(string, int, int, int, metrics.Timer) func(*sync.WaitGroup)
+    var requestSize int
+    var testFunc func(string, int, int, int, metrics.Timer, *int) func(*sync.WaitGroup)
 
     switch clientType {
         case "grpc": testFunc = client.StartGrpcClient
@@ -52,7 +53,7 @@ func startClient() {
 
     wg.Add(clients)
 
-    var clientRoutine func(*sync.WaitGroup) = testFunc(host + ":8000", clients, requestsPerClient, messageSize, timer)
+    var clientRoutine func(*sync.WaitGroup) = testFunc(host + ":8000", clients, requestsPerClient, messageSize, timer, &requestSize)
 
     for client := 0; client < clients; client++ {
         go clientRoutine(&wg)
@@ -60,6 +61,7 @@ func startClient() {
 
     wg.Wait()
     metrics.WriteOnce(metrics.DefaultRegistry, os.Stdout)
+    fmt.Printf("Request size %9d\n", requestSize)
 }
 
 func startServer() {

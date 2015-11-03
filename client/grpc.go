@@ -8,9 +8,10 @@ import (
     "golang.org/x/net/context"
     pb "github.com/michalkvasnicak/internal-api-benchmark/grpc"
     "strings"
+    "github.com/golang/protobuf/proto"
 )
 
-func StartGrpcClient(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(wg *sync.WaitGroup) {
+func StartGrpcClient(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(wg *sync.WaitGroup) {
     var connection *grpc.ClientConn
     var err error
 
@@ -20,6 +21,8 @@ func StartGrpcClient(address string, clients int, requestsPerClient int, message
 
     client := pb.NewResponderClient(connection)
     request := &pb.Request{Method: "TEST", Payload: strings.Repeat("a", messageSize)}
+    encoded, _ := proto.Marshal(request)
+    *requestSize = int(len(encoded))
 
     return func(wg *sync.WaitGroup) {
         defer wg.Done()

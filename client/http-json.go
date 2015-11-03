@@ -11,7 +11,7 @@ import (
     "strings"
 )
 
-func StartHttpJsonClient(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer) func(wg *sync.WaitGroup) {
+func StartHttpJsonClient(address string, clients int, requestsPerClient int, messageSize int, timer metrics.Timer, requestSize *int) func(wg *sync.WaitGroup) {
     return func(wg *sync.WaitGroup) {
         var err error
         var rawMessage json.RawMessage
@@ -28,6 +28,7 @@ func StartHttpJsonClient(address string, clients int, requestsPerClient int, mes
         }
 
         data := bytes.NewReader(rawMessage)
+        *requestSize = len(rawMessage)
 
         for i := 0; i < requestsPerClient; i++ {
             timer.Time(func() {
