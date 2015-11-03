@@ -28,7 +28,7 @@ func init() {
     flag.IntVar(&clients, "clients", 10, "Number of clients (type has to be client)")
     flag.IntVar(&requestsPerClient, "rpc", 1000, "Number of sequential requests per client (type has ot be client)")
     flag.IntVar(&messageSize, "size", 1024, "Message size in bytes (type has to be client)")
-    flag.IntVar(&host, "host", "127.0.0.1", "Server IP/host")
+    flag.StringVar(&host, "host", "127.0.0.1", "Server IP/host")
 }
 
 func startClient() {
